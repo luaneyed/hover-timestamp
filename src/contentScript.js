@@ -170,7 +170,10 @@ function getMouseOverWord(clientX, clientY) {
   const caretPosition = document.caretPositionFromPoint(clientX, clientY);
 
   // Check if caret position is valid and points to a text node
-  if (!caretPosition || caretPosition.offsetNode.nodeType !== Node.TEXT_NODE) {
+  if (
+    !caretPosition
+    || ![Node.TEXT_NODE, Node.ELEMENT_NODE].includes(caretPosition.offsetNode.nodeType)
+  ) {
     return "";
   }
 
@@ -179,23 +182,25 @@ function getMouseOverWord(clientX, clientY) {
 
   // Check if mouse coordinates lie within the text node's bounding rect
   const rect = range.getBoundingClientRect();
-  if (
+  if (rect.width > 0 && rect.height > 0 && (
     clientX < rect.left ||
     clientX > rect.right ||
     clientY < rect.top ||
     clientY > rect.bottom
-  ) {
+  )) {
     return "";
   }
 
-  const { href } = caretPosition.offsetNode.parentElement.attributes;
-  const leafPath = href && href.value.split('/').pop();
-
-  if (leafPath && getDate(leafPath)) {
-    return leafPath;
+  let value;
+  if (caretPosition.offsetNode.nodeType === Node.ELEMENT_NODE) {
+    if (caretPosition.offsetNode.tagName === 'INPUT') {
+      value = filterString(caretPosition.offsetNode.value);
+    } else {
+      return "";
+    }
+  } else {
+    value = filterString(caretPosition.offsetNode.textContent);
   }
-
-  let value = filterString(caretPosition.offsetNode.textContent);
   if (getDate(value)) {
     return value;
   }
