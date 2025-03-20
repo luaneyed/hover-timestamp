@@ -126,7 +126,7 @@ function getDate(s) {
     s = s.substring(1, len - 1);
   }
   const n = Number(s);
-  if (!Number.isInteger(n) || (n < 1_000_000_000)) {
+  if (!Number.isInteger(n) || (n < 1_000_000_000) || (n > 1_000_000_000_000_000_000_000)) {
     return null;
   }
   if (n < 10_000_000_000) { // Assume the unit is second
